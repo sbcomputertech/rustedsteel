@@ -1,4 +1,5 @@
 using HarmonyLib;
+using Serilog;
 using UnityEngine.SceneManagement;
 
 namespace RustedSteelMod.Patches;
@@ -17,6 +18,7 @@ public class EndlessStopAdvancing
         {
             EndlessManager.HighScore = EndlessManager.CurrentScore;
         }
+        Log.Debug("Endless scores: {CurrentScore}/{HighScore}", EndlessManager.CurrentScore, EndlessManager.HighScore);
         
         SceneManager.LoadScene("main");
         return false; // skip original
