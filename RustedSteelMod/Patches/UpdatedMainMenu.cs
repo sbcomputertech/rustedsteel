@@ -63,7 +63,14 @@ public class UpdatedMainMenu
             _rtEndless = (RectTransform?)endlessText.transform;
             _endlessNav = endlessNav;
 
-            __instance.debug_skipLineUp = true;
+            if (PlayerPrefs.GetInt("seen lineup") > 0)
+            {
+                __instance.debug_skipLineUp = true;
+            }
+            else
+            {
+                PlayerPrefs.SetInt("seen lineup", 1);
+            }
         }
         
         Log.Debug("Setup UpdatedMainMenu feature");
