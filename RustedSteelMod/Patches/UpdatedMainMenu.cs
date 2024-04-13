@@ -17,6 +17,8 @@ public class UpdatedMainMenu
     private static RectTransform? _rtExit;
     private static RectTransform? _rtEndless;
 
+    private static GameObject? _endlessNav;
+
     [HarmonyPatch(nameof(menuManager.Start))]
     [HarmonyPostfix]
     public static void InitMenu(menuManager __instance)
@@ -51,13 +53,15 @@ public class UpdatedMainMenu
             endlessText.gameObject.SetActive(false);
             var endlessNav = UnityEngine.Object.Instantiate(__instance.navigators.Last(), canvas.transform);
             endlessNav.name = "navigator4";
-            
-            endlessText.transform.Translate(75, -100, 0);
-            endlessNav.transform.Translate(0, -100, 0);
+
+            var offset = new Vector3(0, -200, 0);
+            endlessText.transform.position = exit.position + offset + new Vector3(60, 0, 0);
+            endlessNav.transform.position = __instance.navigators.Last().transform.position + offset;
             
             endlessText.SetText("Endless");
             __instance.navigators = __instance.navigators.Append(endlessNav).ToArray();
             _rtEndless = (RectTransform?)endlessText.transform;
+            _endlessNav = endlessNav;
 
             __instance.debug_skipLineUp = true;
         }
@@ -100,7 +104,7 @@ public class UpdatedMainMenu
         if (hovering)
         {
             __instance.Move();
-            if (Input.GetMouseButtonDown(0))
+            if (Input.GetMouseButtonDown(0) && !Input.GetKey(KeyCode.LeftControl))
             {
                 __instance.Select();
             }
@@ -141,6 +145,7 @@ public class UpdatedMainMenu
         Log.Debug("UpdatedMainMenu:ResetForLoad()");
         
         if (_rtEndless != null) _rtEndless.position = new Vector3(1000000, 1000000, 0);
+        if(_endlessNav != null) _endlessNav.SetActive(false);
         PlayerPrefs.SetInt("into endless", 0);
     }
 
