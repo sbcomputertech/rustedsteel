@@ -1,7 +1,7 @@
 using HarmonyLib;
 using UnityEngine;
 
-namespace RustedSteelMod.Patches;
+namespace RustedSteelMod.Endless;
 
 [HarmonyPatch(typeof(computerHost))]
 public class EndlessComputerSetEmail

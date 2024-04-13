@@ -3,7 +3,7 @@ using Serilog;
 using TMPro;
 using UnityEngine;
 
-namespace RustedSteelMod.Patches;
+namespace RustedSteelMod.Endless;
 
 [HarmonyPatch(typeof(guiBranch))]
 public class EndlessInfoEmailManager

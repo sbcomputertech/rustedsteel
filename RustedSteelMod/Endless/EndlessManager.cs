@@ -1,10 +1,9 @@
-using System.Collections;
 using HarmonyLib;
 using Serilog;
 using UnityEngine;
 using Random = System.Random;
 
-namespace RustedSteelMod.Patches;
+namespace RustedSteelMod.Endless;
 
 [HarmonyPatch(typeof(dayManager))]
 public class EndlessManager

@@ -2,7 +2,7 @@ using HarmonyLib;
 using Serilog;
 using UnityEngine.SceneManagement;
 
-namespace RustedSteelMod.Patches;
+namespace RustedSteelMod.Endless;
 
 [HarmonyPatch(typeof(sleepManager))]
 public class EndlessStopAdvancing
