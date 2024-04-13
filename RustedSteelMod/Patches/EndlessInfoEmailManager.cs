@@ -1,6 +1,7 @@
 using HarmonyLib;
 using Serilog;
 using TMPro;
+using UnityEngine;
 
 namespace RustedSteelMod.Patches;
 
@@ -11,7 +12,7 @@ public class EndlessInfoEmailManager
     [HarmonyPostfix]
     public static void Init(guiBranch __instance)
     {
-        if (__instance.isMail && __instance.mailIndex == 1)
+        if (__instance.isMail && __instance.mailIndex == 1 && PlayerPrefs.GetInt("into endless") > 0)
         {
             Log.Debug("Found first mail bit");
 
