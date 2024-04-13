@@ -34,6 +34,7 @@ public class RustedSteel
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
             .WriteTo.File("modlog.txt")
+            //.WriteTo.Sink(new UnityLogSink())
             .Enrich.WithProperty("LoggerName", "RSCore")
             .CreateLogger();
         Log.Logger.Information("Setting up mod...");

@@ -1,9 +1,11 @@
+using System.Collections;
 using HarmonyLib;
 using Serilog;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
-namespace RustedSteelMod.Features;
+namespace RustedSteelMod.Patches;
 
 [HarmonyPatch(typeof(menuManager))]
 public class UpdatedMainMenu
@@ -13,12 +15,15 @@ public class UpdatedMainMenu
     private static RectTransform? _rtStart;
     private static RectTransform? _rtContinue;
     private static RectTransform? _rtExit;
-    //private static RectTransform? _rtRusted;
+    private static RectTransform? _rtEndless;
 
     [HarmonyPatch(nameof(menuManager.Start))]
     [HarmonyPostfix]
     public static void InitMenu(menuManager __instance)
     {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        
         var canvas = GameObject.Find("player/canvas_player").GetComponent<Canvas>();
         if (canvas == null)
         {
@@ -41,6 +46,19 @@ public class UpdatedMainMenu
             var exit = canvas.transform.Find("exit");
             _rtExit = (RectTransform)exit;
 
+            var endlessText = UnityEngine.Object.Instantiate(exit.gameObject, canvas.transform).GetComponent<TextMeshProUGUI>();
+            endlessText.name = "endless";
+            endlessText.gameObject.SetActive(false);
+            var endlessNav = UnityEngine.Object.Instantiate(__instance.navigators.Last(), canvas.transform);
+            endlessNav.name = "navigator4";
+            
+            endlessText.transform.Translate(75, -100, 0);
+            endlessNav.transform.Translate(0, -100, 0);
+            
+            endlessText.SetText("Endless");
+            __instance.navigators = __instance.navigators.Append(endlessNav).ToArray();
+            _rtEndless = (RectTransform?)endlessText.transform;
+
             __instance.debug_skipLineUp = true;
         }
         
@@ -51,8 +69,7 @@ public class UpdatedMainMenu
     [HarmonyPrefix]
     public static bool FixNavigation(menuManager __instance)
     {
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
+        if(_rtEndless != null) _rtEndless.gameObject.SetActive(true);
 
         if (_mainCam == null)
         {
@@ -74,8 +91,12 @@ public class UpdatedMainMenu
         {
             __instance.navIndex = 2;
             hovering = true;
+        } else if (RectTransformUtility.RectangleContainsScreenPoint(_rtEndless, mousePos))
+        {
+            __instance.navIndex = 3;
+            hovering = true;
         }
-
+        
         if (hovering)
         {
             __instance.Move();
@@ -109,5 +130,46 @@ public class UpdatedMainMenu
         }
         
         return false; // skip original
+    }
+
+    [HarmonyPatch(nameof(menuManager.Select))]
+    [HarmonyPrefix]
+    public static void ResetForLoad(menuManager __instance)
+    {
+        if(__instance.navIndex == 1 && !__instance.hasSaveFile) return;
+        
+        Log.Debug("UpdatedMainMenu:ResetForLoad()");
+        
+        if (_rtEndless != null) _rtEndless.position = new Vector3(1000000, 1000000, 0);
+        PlayerPrefs.SetInt("into endless", 0);
+    }
+
+    [HarmonyPatch(nameof(menuManager.Select))]
+    [HarmonyPostfix]
+    public static void CheckForCustomSelects(menuManager __instance)
+    {
+        if (__instance.navIndex == 3)
+        {
+            __instance.StartCoroutine(LoadEndlessCO(__instance.tranScript));
+        }
+    }
+
+    private static IEnumerator LoadEndlessCO(transition t)
+    {
+        Log.Debug("Entering endless mode!");
+            
+        PlayerPrefs.SetInt("first time", 1);
+        PlayerPrefs.SetInt("active day", -1);
+        PlayerPrefs.SetInt("into endless", 1);
+        PlayerPrefs.SetInt("died", 0);
+        PlayerPrefs.SetFloat("sensitivity", 200f);
+        PlayerPrefs.DeleteKey("save file");
+
+        const float fadeTime = 2f;
+        t.transitionSpeed = fadeTime;
+        t.FadeToBlack();
+        yield return new WaitForSeconds(fadeTime + 0.1f);
+        
+        SceneManager.LoadScene("main");
     }
 }

@@ -3,7 +3,7 @@ using Serilog;
 using TMPro;
 using UnityEngine;
 
-namespace RustedSteelMod.Features;
+namespace RustedSteelMod.Patches;
 
 [HarmonyPatch(typeof(options))]
 public class ActualPause
