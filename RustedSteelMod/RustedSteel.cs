@@ -52,6 +52,7 @@ public class RustedSteel
         _harmony.PatchAll(typeof(RustedSteel).Assembly);
         Log.Logger.Debug("Finished method patching");
 
+#if DEBUG
         try
         {
             ExplorerStandalone.CreateInstance();
@@ -61,6 +62,7 @@ public class RustedSteel
         {
             Log.Information("UnityExplorer standalone is not enabled");
         }
+#endif
         
         InitManager();
     }
